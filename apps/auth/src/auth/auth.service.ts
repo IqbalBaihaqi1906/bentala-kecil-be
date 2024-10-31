@@ -4,10 +4,15 @@ import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { RegisterDto } from '@app/dto/auth-dto/register.dto';
 import { RpcException } from '@nestjs/microservices';
+import { LoginDto } from '@app/dto/auth-dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async register(args: RegisterDto): Promise<string> {
     try {
@@ -76,6 +81,64 @@ export class AuthService {
         error.message || 'An error occurred on handleUserCreateNotification',
         error.status || 500,
       );
+    }
+  }
+
+  async login(args: LoginDto) {
+    try {
+      const user: Prisma.UserGetPayload<{}> = await this.prisma.user.findFirst({
+        where: {
+          username: args.username,
+        },
+      });
+
+      if (!user) {
+        throw new RpcException({
+          statusCode: 400,
+          message: 'User Not Found',
+        });
+      }
+
+      const isMatch: boolean = await bcrypt.compare(
+        args.password,
+        user.password,
+      );
+
+      if (!isMatch) {
+        throw new RpcException({
+          statusCode: 400,
+          message: 'Invalid Password',
+        });
+      }
+
+      const payload = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      };
+
+      const accessToken = this.jwtService.sign(payload, { expiresIn: '30m' });
+
+      return { accessToken, username: user.username };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  async handleLoginNotification(data: string) {
+    try {
+      const user: Prisma.UserGetPayload<{}> = await this.prisma.user.findUnique(
+        {
+          where: {
+            username: data,
+          },
+        },
+      );
+
+      console.log('User login:', user);
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -3,6 +3,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { RegisterDto } from '@app/dto/auth-dto/register.dto';
+import { LoginDto } from '@app/dto/auth-dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,23 @@ export class AuthService {
     } catch (error) {
       console.log(error);
       const message = error.message || 'Error in register gateway';
+      const statusCode = error.statusCode || 500;
+
+      throw new HttpException(message, statusCode);
+    }
+  }
+
+  async login(args: LoginDto) {
+    try {
+      const login: { accessToken: string; username: string } =
+        await firstValueFrom(this.userClient.send({ cmd: 'auth.login' }, args));
+
+      await this.userClient.emit('auth.login-notif', login.username);
+
+      return login.accessToken;
+    } catch (error) {
+      console.log(error);
+      const message = error.message || 'Error in login gateway';
       const statusCode = error.statusCode || 500;
 
       throw new HttpException(message, statusCode);
