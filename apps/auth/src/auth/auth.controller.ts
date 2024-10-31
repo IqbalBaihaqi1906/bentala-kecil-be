@@ -24,7 +24,7 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'auth.login' })
   async login(@Payload() args: LoginDto) {
-    const data: string = await this.authService.login(args);
+    const data: { accessToken: string; username: string } = await this.authService.login(args);
 
     return data;
   }

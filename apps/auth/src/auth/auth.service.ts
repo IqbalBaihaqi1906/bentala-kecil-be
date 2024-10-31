@@ -6,6 +6,7 @@ import { RegisterDto } from '@app/dto/auth-dto/register.dto';
 import { RpcException } from '@nestjs/microservices';
 import { LoginDto } from '@app/dto/auth-dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { IJwtPayload } from "../../../api-gateway/src/auth/types/type";
 
 @Injectable()
 export class AuthService {
@@ -111,13 +112,13 @@ export class AuthService {
         });
       }
 
-      const payload = {
+      const payload: IJwtPayload = {
         id: user.id,
         username: user.username,
         role: user.role,
       };
 
-      const accessToken = this.jwtService.sign(payload, { expiresIn: '30m' });
+      const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
 
       return { accessToken, username: user.username };
     } catch (error) {

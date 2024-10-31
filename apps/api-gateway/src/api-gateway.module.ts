@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthGuard } from './auth/guards/jwt.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -21,6 +24,20 @@ import { AuthModule } from './auth/auth.module';
       },
     ]),
     AuthModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET || 'shouldbeasecret',
+    }),
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: AuthGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
+    },
   ],
 })
 export class ApiGatewayModule {}

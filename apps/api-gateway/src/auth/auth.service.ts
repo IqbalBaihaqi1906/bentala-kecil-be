@@ -4,6 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { RegisterDto } from '@app/dto/auth-dto/register.dto';
 import { LoginDto } from '@app/dto/auth-dto/login.dto';
+import { IJwtPayload } from './types/type';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,18 @@ export class AuthService {
     } catch (error) {
       console.log(error);
       const message = error.message || 'Error in login gateway';
+      const statusCode = error.statusCode || 500;
+
+      throw new HttpException(message, statusCode);
+    }
+  }
+
+  async authenticatedRequest(data: IJwtPayload) {
+    try {
+      return data;
+    } catch (error) {
+      console.log(error);
+      const message = error.message || 'Error in get users gateway';
       const statusCode = error.statusCode || 500;
 
       throw new HttpException(message, statusCode);
