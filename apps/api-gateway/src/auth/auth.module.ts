@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ApiGatewayController } from './api-gateway.controller';
-import { ApiGatewayService } from './api-gateway.service';
-import { ConfigModule } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -12,19 +11,18 @@ import { AuthModule } from './auth/auth.module';
     }),
     ClientsModule.register([
       {
-        name: 'USER_SERVICE',
+        name: 'AUTH_SERVICE',
         transport: Transport.RMQ,
         options: {
           urls: [
             `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
           ],
-          queue: 'user_queue',
+          queue: 'auth_queue',
         },
       },
     ]),
-    AuthModule,
   ],
-  controllers: [ApiGatewayController],
-  providers: [ApiGatewayService],
+  controllers: [AuthController],
+  providers: [AuthService],
 })
-export class ApiGatewayModule {}
+export class AuthModule {}

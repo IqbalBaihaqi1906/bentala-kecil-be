@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
-import { INestApplication } from '@nestjs/common';
-import { Transport } from '@nestjs/microservices';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(ApiGatewayModule);
+
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(process.env.port ?? 3000);
 
