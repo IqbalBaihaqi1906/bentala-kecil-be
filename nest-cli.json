@@ -1,8 +1,41 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/bentala-kecil-be/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/bentala-kecil-be/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/bentala-kecil-be",
+  "projects": {
+    "bentala-kecil-be": {
+      "type": "application",
+      "root": "apps/bentala-kecil-be",
+      "entryFile": "main",
+      "sourceRoot": "apps/bentala-kecil-be/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/bentala-kecil-be/tsconfig.app.json"
+      }
+    },
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "user-service": {
+      "type": "application",
+      "root": "apps/user-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/user-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user-service/tsconfig.app.json"
+      }
+    }
   }
 }
