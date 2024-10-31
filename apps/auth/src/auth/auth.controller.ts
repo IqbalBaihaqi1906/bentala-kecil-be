@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RegisterDto } from '@app/dto';
+import { EventPattern, MessagePattern, Payload } from "@nestjs/microservices";
+import { RegisterDto } from "@app/dto/auth-dto/register.dto";
+// import { RegisterDto } from '@app/dto';
 
 @Controller()
 export class AuthController {
@@ -12,5 +13,10 @@ export class AuthController {
     const data = await this.authService.register(args);
 
     return data;
+  }
+
+  @EventPattern('user.create-notification')
+  async handleUserCreateNotification(@Payload() data: string) {
+    await this.authService.handleUserCreateNotification(data);
   }
 }

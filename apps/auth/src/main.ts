@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AuthAppModule } from './auth.app.module';
+import { HttpExceptionFilter } from "@app/common/exceptions/http.excaption";
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AuthAppModule);
@@ -15,6 +16,10 @@ async function bootstrap() {
     HOST: configService.get('RABBITMQ_HOST'),
     PORT: configService.get('RABBITMQ_PORT'),
   };
+
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   // connect rabbitmq
   app.connectMicroservice<MicroserviceOptions>({
